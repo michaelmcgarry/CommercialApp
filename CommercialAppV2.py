@@ -174,18 +174,37 @@ df['Weekday'] = df['StartDateTime'].apply(lambda x: x.weekday())
 sportlist = sorted(df['Sport'].unique())
 sportlist.insert(0,"--Please Select--")
 
-
+def display_text(text):
+    st.markdown(f"- {text}")
+    
 def home_page():
     st.title("Commercial Tool")
     st.write("Select a report type, then apply your filters in the sidebar.")
     report_type = st.selectbox("Select a report type", ["Home", "Comp Scheduling", "Sport Concurrency", "Perform Operator Views"])
-
-    if report_type == "Comp Scheduling":
+  
+    if report_type == "Home":
+        display_home_page()
+    elif report_type == "Comp Scheduling":
         report_1_page()
     elif report_type == "Sport Concurrency":
         report_2_page()
     elif report_type == "Perform Operator Views":
         report_3_page()
+        
+def display_home_page():
+    #Write Descriptions of each report:
+    # First Report: Comp Scheduling
+    st.header("Comp Scheduling Report")
+    display_text("Comp Scheduling allows users to select a sport and competition, and will return the total number and % of games at each unique start time throughout the week, as well as the monthly matches and seasonality of the competition.")
+    
+    # Second Report: Sport Concurrency
+    st.header("Sport Concurrency Report")
+    display_text("Sport Concurrency allows users to select a sport, list of months, and a single day of the week and time range. This report will output a list of competitions which take place in this time window alongside the total number of games they have in the year.")
+    
+    # Third Report: Perform Operator Views
+    st.header("Perform Operator Views Report")
+    display_text("Perform Operator Views allows users to select a sport and competition, and outputs a list of operators who streamed that competition alongside their total events, total unique users, average unique users, and average unique users across all competitions in that sport.") 
+    
 
 def report_1_page():
     st.title("Competition Scheduling")
