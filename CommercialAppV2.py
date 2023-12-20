@@ -178,17 +178,17 @@ sportlist.insert(0,"--Please Select--")
 def home_page():
     st.title("Commercial Tool")
     st.write("Select a report type, then apply your filters in the sidebar.")
-    report_type = st.selectbox("Select a report type", ["Home", "Report 1", "Report 2", "Report 3"])
+    report_type = st.selectbox("Select a report type", ["Home", "Comp Scheduling", "Sport Concurrency", "Perform Operator Views"])
 
-    if report_type == "Report 1":
+    if report_type == "Comp Scheduling":
         report_1_page()
-    elif report_type == "Report 2":
+    elif report_type == "Sport Concurrency":
         report_2_page()
-    elif report_type == "Report 3":
+    elif report_type == "Perform Operator Views":
         report_3_page()
 
 def report_1_page():
-    st.title("Report 1")
+    st.title("Competition Scheduling")
     st.sidebar.image("IGM Primary Inv logotype.png", use_column_width=True)
     
     with st.sidebar:
@@ -205,39 +205,39 @@ def report_1_page():
             complist.insert(0,"--Please Select--")
             selected_comp = st.selectbox("Select A Competition:",complist)
             
-    if selected_comp != "--Please Select--":
-        with st.container():
-            if st.button(f"Click Here To Generate Reports For {selected_country} {selected_comp} {selected_sport}"):
-                total_fixtures = len(df.loc[(df['Sport']==selected_sport)&(df['Country']==selected_country)&(df['Competition']==selected_comp)])
-                st.write(f"Total Annual Fixtures: {total_fixtures}")
-                
-                #Get Seasonality of Competition
-                season = "Winter"
-                st.write(f"Season: {season}")
-                
-                #Get Monthly Fixtures Data & Download Excel Link
-                monthly_fixtures = get_comp_fixtures_by_month(df,selected_sport,selected_country,selected_comp)
-                st.dataframe(monthly_fixtures)
-                filename = f"MonthlyFixtures{selected_country}-{selected_sport}-{selected_comp}.xlsx"
-                generate_excel_download(monthly_fixtures, filename,"Click Here To Download!")
-
-                
-                #Get Daily Kick off Time Data & Download Excel Link
-                daily_fixtures = get_pct_matches_weekdays(df,weekdays,selected_sport,selected_country,selected_comp)
-                st.dataframe(daily_fixtures)
-                filename = f"DailyFixtures{selected_country}-{selected_sport}-{selected_comp}.xlsx"
-                generate_excel_download(daily_fixtures, filename, "Click Here To Download!")
-                
-                #Get Start Time Data & Download Excel Link
-                start_time_df = get_pct_matches_start_times(df, weekdays, selected_sport,selected_country,selected_comp, threshold=0)
-                st.dataframe(start_time_df)
-                filename = f"StartTimes{selected_country}-{selected_sport}-{selected_comp}.xlsx"
-                generate_excel_download(start_time_df, filename, "Click Here To Download!")
+            if selected_comp != "--Please Select--":
+                with st.container():
+                    if st.button(f"Click Here To Generate Reports For {selected_country} {selected_comp} {selected_sport}"):
+                        total_fixtures = len(df.loc[(df['Sport']==selected_sport)&(df['Country']==selected_country)&(df['Competition']==selected_comp)])
+                        st.write(f"Total Annual Fixtures: {total_fixtures}")
+                        
+                        #Get Seasonality of Competition
+                        season = "Winter"
+                        st.write(f"Season: {season}")
+                        
+                        #Get Monthly Fixtures Data & Download Excel Link
+                        monthly_fixtures = get_comp_fixtures_by_month(df,selected_sport,selected_country,selected_comp)
+                        st.dataframe(monthly_fixtures)
+                        filename = f"MonthlyFixtures{selected_country}-{selected_sport}-{selected_comp}.xlsx"
+                        generate_excel_download(monthly_fixtures, filename,"Click Here To Download!")
+        
+                        
+                        #Get Daily Kick off Time Data & Download Excel Link
+                        daily_fixtures = get_pct_matches_weekdays(df,weekdays,selected_sport,selected_country,selected_comp)
+                        st.dataframe(daily_fixtures)
+                        filename = f"DailyFixtures{selected_country}-{selected_sport}-{selected_comp}.xlsx"
+                        generate_excel_download(daily_fixtures, filename, "Click Here To Download!")
+                        
+                        #Get Start Time Data & Download Excel Link
+                        start_time_df = get_pct_matches_start_times(df, weekdays, selected_sport,selected_country,selected_comp, threshold=0)
+                        st.dataframe(start_time_df)
+                        filename = f"StartTimes{selected_country}-{selected_sport}-{selected_comp}.xlsx"
+                        generate_excel_download(start_time_df, filename, "Click Here To Download!")
                 
             
 
 def report_2_page():
-    st.title("Report 2")
+    st.title("Sport Concurrency")
     st.sidebar.image("IGM Primary Inv logotype.png", use_column_width=True)
     with st.sidebar:
         selected_sport = st.selectbox("Select a sport", sportlist)
@@ -291,13 +291,13 @@ def report_2_page():
                 generate_excel_download(result_df, filename, "Click Here To Download!")
                 
 def report_3_page():
-    st.title("Report 3")
+    st.title("Perform Operator Views")
     st.sidebar.image("IGM Primary Inv logotype.png", use_column_width=True)
     selected_sport = st.sidebar.selectbox("Select a sport", sportlist)
     
     #Put logic for Stats Perform report here
     #Make sure to load the Report10 Data!
-    df = pd.read_csv("CommercialData.csv")
+    df = pd.read_csv("CommercialAppData.csv")
     
     if selected_sport != "--Please Select--":
         complist = sorted(df.loc[df['sport']==selected_sport]['property'].unique())
@@ -311,27 +311,26 @@ def report_3_page():
                 if gen:
                     st.write("GENERATING...")
                     # Filter the DataFrame based on the specified sport and property
-                    filtered_df = df[(df['sport'] == selected_sport) & (df['property'] == selected_comp)]
-                    
-                    _ = filtered_df.groupby(["sport","property","client"]).agg(totalEvents=("num_matches","sum"),
-                                                                          totalUniqueUsers=("unique_users","sum"),
-                                                                          avgUniqueUsers=("unique_users","mean")).reset_index()
+                    _ = df[(df['sport'] == selected_sport) & (df['property'] == selected_comp)]
+
+                    _['average_uniques'] = _['total_uniques'] / _['num_events']
                     
                     #Get Avg Uniques by Operator for this sport:
                     filtered_df = df.loc[df['sport']==selected_sport]
                     
-                    avg_by_client = filtered_df.groupby(["client"])["unique_users"].mean().reset_index()
+                    avg_by_client = filtered_df.groupby(["client"])[["num_events","total_uniques"]].sum().reset_index()
+                    avg_by_client['avg_uniques'] = avg_by_client['total_uniques'] / avg_by_client['num_events']
+                    avg_by_client = avg_by_client[['client','avg_uniques']].copy()
                     
-                    avg_by_client.columns = ['client',f"avg{selected_sport}UniqueUsers"]
+                    sport_name_short = selected_sport.replace(" ", "").replace("(", "").replace(")", "")
+                    comp_name_short = selected_comp.replace(" ", "").replace("(", "").replace(")", "")
+                    
+                    avg_by_client.columns = ['client',f"clientAvg{sport_name_short}UniqueUsersPerEvent"]
                     
                     #Merge the two dataframes into one and present
                     result_df = _.merge(avg_by_client,how="left")
                     
                     st.dataframe(result_df)
-                    
-
-                    sport_name_short = selected_sport.replace(" ", "").replace("(", "").replace(")", "")
-                    comp_name_short = selected_comp.replace(" ", "").replace("(", "").replace(")", "")
                     
                     filename = f"AvgClientViews{comp_name_short}_{sport_name_short}.xlsx"
                     generate_excel_download(result_df, filename, "Click Here To Download!")
