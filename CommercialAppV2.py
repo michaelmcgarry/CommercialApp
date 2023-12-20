@@ -295,6 +295,7 @@ def report_3_page():
     st.title("Perform Operator Views")
     st.sidebar.image("IGM Primary Inv logotype.png", use_column_width=True)
     selected_sport = st.sidebar.selectbox("Select a sport", sportlist)
+    selected_comp = "--Please Select--"
     
     #Put logic for Stats Perform report here
     #Make sure to load the Report10 Data!
