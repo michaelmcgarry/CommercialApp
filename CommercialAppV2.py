@@ -243,8 +243,8 @@ def report_1_page():
                     
                     # Assuming df is your DataFrame
                     # You may need to adjust column names based on your actual DataFrame
-                    summer_events = monthly_fixtures[monthly_fixtures['month'].isin(summer_months)]['NumEvents'].sum()
-                    winter_events = monthly_fixtures[monthly_fixtures['month'].isin(winter_months)]['NumEvents'].sum()
+                    summer_events = monthly_fixtures[monthly_fixtures['Month'].isin(summer_months)]['NumEvents'].sum()
+                    winter_events = monthly_fixtures[monthly_fixtures['Month'].isin(winter_months)]['NumEvents'].sum()
                     
                     # Check and return the result
                     if summer_events > winter_events:
