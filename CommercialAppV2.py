@@ -198,6 +198,7 @@ def report_1_page():
         countrylist.insert(0,"--Please Select--")
         
         selected_country = st.selectbox("Select A Country:",countrylist)
+        selected_comp = "--Please Select--"
         
         #If a country has been selected, prompt user to select a competition
         if selected_country != "--Please Select--":
