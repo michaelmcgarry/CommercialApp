@@ -219,41 +219,59 @@ def report_1_page():
         selected_country = st.selectbox("Select A Country:",countrylist)
         selected_comp = "--Please Select--"
         
-        #If a country has been selected, prompt user to select a competition
-        if selected_country != "--Please Select--":
-            complist = sorted(df.loc[(df['Sport']==selected_sport)&(df['Country']==selected_country)]['Competition'].unique())
-            complist.insert(0,"--Please Select--")
-            selected_comp = st.selectbox("Select A Competition:",complist)
-            
-            if selected_comp != "--Please Select--":
-                with st.container():
-                    if st.button(f"Click Here To Generate Reports For {selected_country} {selected_comp} {selected_sport}"):
-                        total_fixtures = len(df.loc[(df['Sport']==selected_sport)&(df['Country']==selected_country)&(df['Competition']==selected_comp)])
-                        st.write(f"Total Annual Fixtures: {total_fixtures}")
-                        
-                        #Get Seasonality of Competition
-                        season = "Winter"
-                        st.write(f"Season: {season}")
-                        
-                        #Get Monthly Fixtures Data & Download Excel Link
-                        monthly_fixtures = get_comp_fixtures_by_month(df,selected_sport,selected_country,selected_comp)
-                        st.dataframe(monthly_fixtures)
-                        filename = f"MonthlyFixtures{selected_country}-{selected_sport}-{selected_comp}.xlsx"
-                        generate_excel_download(monthly_fixtures, filename,"Click Here To Download!")
+    #If a country has been selected, prompt user to select a competition
+    if selected_country != "--Please Select--":
+        complist = sorted(df.loc[(df['Sport']==selected_sport)&(df['Country']==selected_country)]['Competition'].unique())
+        complist.insert(0,"--Please Select--")
+        selected_comp = st.selectbox("Select A Competition:",complist)
         
-                        
-                        #Get Daily Kick off Time Data & Download Excel Link
-                        daily_fixtures = get_pct_matches_weekdays(df,weekdays,selected_sport,selected_country,selected_comp)
-                        st.dataframe(daily_fixtures)
-                        filename = f"DailyFixtures{selected_country}-{selected_sport}-{selected_comp}.xlsx"
-                        generate_excel_download(daily_fixtures, filename, "Click Here To Download!")
-                        
-                        #Get Start Time Data & Download Excel Link
-                        start_time_df = get_pct_matches_start_times(df, weekdays, selected_sport,selected_country,selected_comp, threshold=0)
-                        st.dataframe(start_time_df)
-                        filename = f"StartTimes{selected_country}-{selected_sport}-{selected_comp}.xlsx"
-                        generate_excel_download(start_time_df, filename, "Click Here To Download!")
-                
+        if selected_comp != "--Please Select--":
+            with st.container():
+                if st.button(f"Click Here To Generate Reports For {selected_country} {selected_comp} {selected_sport}"):
+                    total_fixtures = len(df.loc[(df['Sport']==selected_sport)&(df['Country']==selected_country)&(df['Competition']==selected_comp)])
+                    st.write(f"Total Annual Fixtures: {total_fixtures}")
+
+                    
+                    #Get Monthly Fixtures Data & Download Excel Link
+                    monthly_fixtures = get_comp_fixtures_by_month(df,selected_sport,selected_country,selected_comp)
+                    st.dataframe(monthly_fixtures)
+                    
+                    #Get Seasonality
+                    # Create a mapping for summer and winter months
+                    summer_months = [5, 6, 7, 8]  # May, June, July, August
+                    winter_months = [11, 12, 1, 2]  # November, December, January, February
+                    
+                    # Assuming df is your DataFrame
+                    # You may need to adjust column names based on your actual DataFrame
+                    summer_events = monthly_fixtures[monthly_fixtures['month'].isin(summer_months)]['NumEvents'].sum()
+                    winter_events = monthly_fixtures[monthly_fixtures['month'].isin(winter_months)]['NumEvents'].sum()
+                    
+                    # Check and return the result
+                    if summer_events > winter_events:
+                        season = "Summer"
+                    elif summer_events < winter_events:
+                        season = "Winter"
+                    else:
+                        season = "Unknown"
+                    st.write(f"Season: {season}")
+                    
+                    #Export the file
+                    filename = f"MonthlyFixtures{selected_country}-{selected_sport}-{selected_comp}.xlsx"
+                    generate_excel_download(monthly_fixtures, filename,"Click Here To Download!")
+    
+                    
+                    #Get Daily Kick off Time Data & Download Excel Link
+                    daily_fixtures = get_pct_matches_weekdays(df,weekdays,selected_sport,selected_country,selected_comp)
+                    st.dataframe(daily_fixtures)
+                    filename = f"DailyFixtures{selected_country}-{selected_sport}-{selected_comp}.xlsx"
+                    generate_excel_download(daily_fixtures, filename, "Click Here To Download!")
+                    
+                    #Get Start Time Data & Download Excel Link
+                    start_time_df = get_pct_matches_start_times(df, weekdays, selected_sport,selected_country,selected_comp, threshold=0)
+                    st.dataframe(start_time_df)
+                    filename = f"StartTimes{selected_country}-{selected_sport}-{selected_comp}.xlsx"
+                    generate_excel_download(start_time_df, filename, "Click Here To Download!")
+            
             
 
 def report_2_page():
